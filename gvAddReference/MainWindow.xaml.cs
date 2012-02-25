@@ -31,6 +31,7 @@ namespace gvAddReference
         public MainWindow()
         {
             InitializeComponent();
+            logger.Info("gvAddReference started at: " + DateTime.Now.ToString());
         }
 
         private void addButton_Click(object sender, RoutedEventArgs e)
@@ -38,6 +39,7 @@ namespace gvAddReference
             String filePath = filePathBox.Text;
             String pagePath = pagePathBox.Text;
 
+            logger.Info("Starting to add references...");
             // For each .aspx or html file in the selected pagePath, or the single file selected, insert the tag
             // Read the file as one string.
             //try
@@ -122,6 +124,7 @@ namespace gvAddReference
             return htmlTag;
         }
 
+        // Calls addTagToPage on every file in the directory that matches the regex
         private void processDirectory(String pagePath, String filePath, Regex fileExtension)
         {
             string[] fileEntries = Directory.GetFiles(pagePath);
@@ -135,7 +138,7 @@ namespace gvAddReference
         }
 
         // Adds the script tag in the string to the page just before the closing head tag
-        private void addTagToPage(String filePath, String fileName)
+        private void addTagToPage(String scriptPath, String fileName)
         {
             String scriptTag;
             // Read the file for manipulation
@@ -143,25 +146,50 @@ namespace gvAddReference
             var allLines = File.ReadAllLines(fileName).ToList();
             readFile.Close();
 
-            // Buffer for holding the relative path
+            // Output buffer for holding the relative path
             StringBuilder str = new StringBuilder(260);
             // Make the path we add in the script a relative path to the page
             // Function imported from dll at the bottom of this class
-            bool madeRelative = PathRelativePathTo(str, fileName, FileAttributes.Normal, filePath, FileAttributes.Normal);
+            bool madeRelative = PathRelativePathTo(str, fileName, FileAttributes.Normal, scriptPath, FileAttributes.Normal);
             if (madeRelative)
                 scriptTag = getScriptTag(str.ToString());
             else
             {
                 // Uhh, problem getting the relative path
                 // just use the script fileName for the tag
-                scriptTag = getScriptTag(fileName);
+                scriptTag = getScriptTag(scriptPath);
             }
             
             int index = allLines.FindIndex(i => i.Contains("</head>"));
+            if (index == -1)
+            {
+                // No closing head tag, try just before the closing body tag
+                index = allLines.FindIndex(i => i.Contains("</body>"));
+                if (index == -1)
+                {
+                    //No head or body tag, error message, log error
+                    logger.Debug("No head or body tag found in file " + fileName);
+                    return;
+                }
+            }
+
+            // If this page inherits from the base page, we could add the script there
+            // So don't add the reference to it
+            int line = 0;
+            if ((line = allLines.FindIndex(i => i.Contains("Inherits BasePage"))) > 0)
+            {
+                logger.Debug("File " + fileName + " inherits from the BasePage, no changes were made");
+                logger.Info("File: " + fileName + " | On Line number: " + line + " | Page inherits from BasePage | No changes were made");
+                return;
+            }
+
+            //Insert the script tag just before the closing head tag
             allLines.Insert(index, scriptTag);
+
+            // Write the file back, write what we did to the change log
             File.WriteAllLines(fileName, allLines.ToArray());
             filesChanged = true;
-            logger.Info("File changed: " + fileName + " | Script reference added: " + filePath + " | Relative reference: " + str.ToString() +
+            logger.Info("File changed: " + fileName + " | Script reference added: " + scriptPath + " | Relative reference: " + str.ToString() +
                  " | HTML Tag: " + scriptTag);
         }
 
@@ -196,6 +224,8 @@ namespace gvAddReference
             }
         }
 
+        // Imported function for creating relative paths between two files
+        // This gives us a path to use in the script tag that will work on the server
         [DllImport("shlwapi.dll", CharSet = CharSet.Auto)]
         static extern bool PathRelativePathTo(
              [Out] StringBuilder pszPath,
