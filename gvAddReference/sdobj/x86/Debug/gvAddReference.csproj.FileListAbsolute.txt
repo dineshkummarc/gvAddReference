@@ -1,0 +1,16 @@
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\bin\Debug\NLog.config
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\bin\Debug\gvAddReference.exe
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\bin\Debug\gvAddReference.pdb
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\bin\Debug\NLog.dll
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\bin\Debug\NLog.xml
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\MainWindow.baml
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\MainWindow.g.cs
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\App.g.cs
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\gvAddReference_MarkupCompile.cache
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\gvAddReference.g.resources
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\gvAddReference.Properties.Resources.resources
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\gvAddReference.exe
+C:\Users\Jared\Documents\Work Stuff\gvAddReference\gvAddReference\obj\x86\Debug\gvAddReference.pdb

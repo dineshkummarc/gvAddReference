@@ -22,6 +22,6 @@
         </GroupBox>
         <Button Content="Add References" Height="23" Margin="144,0,0,42" Name="addButton" VerticalAlignment="Bottom" Uid="addRefButton" ToolTip="Add the Reference above" IsDefault="False" HorizontalAlignment="Left" Width="91" Click="addButton_Click" />
         <Button Content="Cancel" Height="23" Margin="0,0,164,42" Name="cancelButton" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="85" />
-        <TextBlock Height="25" Margin="81,228,90,0" Name="statusText" Text="" VerticalAlignment="Top" />
+        <TextBlock Height="25" Margin="81,228,90,0" Name="statusText" Text="" VerticalAlignment="Top" TextAlignment="Center" />
     </Grid>
 </Window>

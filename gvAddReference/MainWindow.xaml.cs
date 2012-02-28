@@ -39,7 +39,7 @@ namespace gvAddReference
             String filePath = filePathBox.Text;
             String pagePath = pagePathBox.Text;
 
-            logger.Info("Starting to add references...");
+            logger.Debug("Starting to add references...");
             // For each .aspx or html file in the selected pagePath, or the single file selected, insert the tag
             // Read the file as one string.
             //try
@@ -83,7 +83,17 @@ namespace gvAddReference
                         // Need to fix the tag to use a different relative url for subdir's
                         foreach (string dir in Directory.GetDirectories(pagePath))
                         {
+                            // Go 3 folders deep looking for files
+                            // this is dumb, change this
                             processDirectory(dir, filePath, fileExtension);
+                            foreach (string deeperDir in Directory.GetDirectories(dir))
+                            {
+                                processDirectory(deeperDir, filePath, fileExtension);
+                                foreach (string deepestDir in Directory.GetDirectories(deeperDir))
+                                {
+                                    processDirectory(deepestDir, filePath, fileExtension);
+                                }
+                            }
                         }
                     }
                     else
@@ -121,6 +131,8 @@ namespace gvAddReference
             {
                 htmlTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + filePath + "\" />";
             }
+            // Local paths use backslash, web paths use forward slash so convert
+            htmlTag.Replace("\\", "/");
             return htmlTag;
         }
 
@@ -148,6 +160,7 @@ namespace gvAddReference
 
             // Output buffer for holding the relative path
             StringBuilder str = new StringBuilder(260);
+
             // Make the path we add in the script a relative path to the page
             // Function imported from dll at the bottom of this class
             bool madeRelative = PathRelativePathTo(str, fileName, FileAttributes.Normal, scriptPath, FileAttributes.Normal);
@@ -160,15 +173,16 @@ namespace gvAddReference
                 scriptTag = getScriptTag(scriptPath);
             }
             
-            int index = allLines.FindIndex(i => i.Contains("</head>"));
+            int index = allLines.FindIndex(i => i.ToUpper().Contains("</HEAD>"));
             if (index == -1)
             {
                 // No closing head tag, try just before the closing body tag
-                index = allLines.FindIndex(i => i.Contains("</body>"));
+                index = allLines.FindIndex(i => i.ToUpper().Contains("</BODY>"));
                 if (index == -1)
                 {
                     //No head or body tag, error message, log error
                     logger.Debug("No head or body tag found in file " + fileName);
+                    logger.Info("File: " + fileName + " | Page has no head or body tags | No changes were made");
                     return;
                 }
             }
