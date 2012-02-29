@@ -187,13 +187,13 @@ namespace gvAddReference
             {
                 // Read the file's codebehind file to check if it inherits from the Base Page
                 System.IO.StreamReader codeFile = new System.IO.StreamReader(fileName + ".vb");
-                var codeLines = File.ReadAllLines(fileName).ToList();
+                var codeLines = File.ReadAllLines(fileName + ".vb").ToList();
                 codeFile.Close();
 
                 // If this page inherits from the base page, we can add the script there
                 // so don't add another reference to it
                 int line = 0;
-                if ((line = codeLines.FindIndex(i => i.Contains("Inherits BasePage"))) > 0)
+                if ((line = codeLines.FindIndex(i => i.ToUpper().Contains("INHERITS BASEPAGE"))) > 0)
                 {
                     logger.Debug("File " + fileName + " inherits from the BasePage, no changes were made");
                     logger.Info("File: " + fileName + " | On Line number: " + line + " | Page inherits from BasePage | No changes were made");
@@ -207,8 +207,7 @@ namespace gvAddReference
             // Write the file back, write what we did to the change log
             File.WriteAllLines(fileName, allLines.ToArray());
             filesChanged = true;
-            logger.Info("File changed: " + fileName + " | Script reference added: " + scriptPath + " | Relative reference: " + str.ToString() +
-                 " | HTML Tag: " + scriptTag);
+            logger.Info("File changed: " + fileName + " | Script reference added: " + str.ToString() + " | HTML Tag: " + scriptTag);
         }
 
         private void filePathButton_Click(object sender, RoutedEventArgs e)
