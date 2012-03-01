@@ -121,11 +121,11 @@ namespace gvAddReference
             // Set the html tag string based on the type selected
             if (jsRadioButton.IsChecked.Value)
             {
-                htmlTag = "<script type=\"text/javascript\" src=\"" + filePath + "\" ></script>";
+                htmlTag = "        <script type=\"text/javascript\" src=\"" + filePath + "\" ></script>";
             }
             else
             {
-                htmlTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + filePath + "\" />";
+                htmlTag = "        <link rel=\"stylesheet\" type=\"text/css\" href=\"" + filePath + "\" />";
             }
             // Local paths use backslash, web paths use forward slash so convert
             return htmlTag.Replace("\\", "/");
@@ -190,12 +190,13 @@ namespace gvAddReference
                 var codeLines = File.ReadAllLines(fileName + ".vb").ToList();
                 codeFile.Close();
 
-                // If this page inherits from the base page, we can add the script there
-                // so don't add another reference to it
+                // If this page inherits from the base page don't add the script here, we can add it there
+                // Also don't add the reference if it already exists in the file
                 int line = 0;
-                if ((line = codeLines.FindIndex(i => i.ToUpper().Contains("INHERITS BASEPAGE"))) > 0)
+                if ((line = (codeLines.FindIndex(i => i.ToUpper().Contains("INHERITS BASEPAGE")
+                        || i.ToUpper().Contains(System.IO.Path.GetFileName(fileName).ToUpper())))) > 0)
                 {
-                    logger.Debug("File " + fileName + " inherits from the BasePage, no changes were made");
+                    logger.Debug("File " + fileName + " inherits from the BasePage or already has the analytics script block, no changes were made");
                     logger.Info("File: " + fileName + " | On Line number: " + line + " | Page inherits from BasePage | No changes were made");
                     return;
                 }
@@ -207,7 +208,7 @@ namespace gvAddReference
             // Write the file back, write what we did to the change log
             File.WriteAllLines(fileName, allLines.ToArray());
             filesChanged = true;
-            logger.Info("File changed: " + fileName + " | Script reference added: " + str.ToString() + " | HTML Tag: " + scriptTag);
+            logger.Info("File changed: " + fileName + " | HTML Tag: " + scriptTag);
         }
 
         private void filePathButton_Click(object sender, RoutedEventArgs e)
