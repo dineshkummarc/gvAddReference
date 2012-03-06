@@ -3,14 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -25,8 +17,8 @@ namespace gvAddReference
     public partial class MainWindow : Window
     {
         Boolean filesChanged = false;
-        List<String> changeLog = new List<String>();
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        int logChangeCounter = 0, logSkipCounter = 0;
 
         public MainWindow()
         {
@@ -98,6 +90,9 @@ namespace gvAddReference
                         return;
                     }
                 }
+                
+                // Write the amount of changes to the log
+                logger.Info("Completed. The reference was added to " + logChangeCounter + " files. " + logSkipCounter + " files were ignored for inheriting from the base page");
 
                 // Based on if filesChanged, give the user a message
                 if (filesChanged)
@@ -106,12 +101,9 @@ namespace gvAddReference
             //}
             //catch (Exception ex)
             //{
-                //Check for file not found exception and give message
-            //    Console.Write(ex.Message);
             //}
             //finally
             //{
-
             //}
         }
 
@@ -169,7 +161,17 @@ namespace gvAddReference
                 scriptTag = getScriptTag(scriptPath);
             }
             
-            int index = allLines.FindIndex(i => i.ToUpper().Contains("</HEAD>"));
+            // Check the page for the fileName of the reference to see if it is already in the file
+            int index = allLines.FindIndex(i => i.ToUpper().Contains(System.IO.Path.GetFileName(fileName).ToUpper()));
+            /*if (index == -1)
+            {
+                logger.Debug("Script tag already contained in " + fileName);
+                logger.Info("File: " + fileName + " | Page already contains the script tag | No changes were made");
+                logSkipCounter++;
+                return;
+            }
+            */
+            index = allLines.FindIndex(i => i.ToUpper().Contains("</HEAD>"));
             if (index == -1)
             {
                 // No closing head tag, try just before the closing body tag
@@ -179,6 +181,7 @@ namespace gvAddReference
                     //No head or body tag, error message, log error
                     logger.Debug("No head or body tag found in file " + fileName);
                     logger.Info("File: " + fileName + " | Page has no head or body tags | No changes were made");
+                    logSkipCounter++;
                     return;
                 }
             }
@@ -193,11 +196,11 @@ namespace gvAddReference
                 // If this page inherits from the base page don't add the script here, we can add it there
                 // Also don't add the reference if it already exists in the file
                 int line = 0;
-                if ((line = (codeLines.FindIndex(i => i.ToUpper().Contains("INHERITS BASEPAGE")
-                        || i.ToUpper().Contains(System.IO.Path.GetFileName(fileName).ToUpper())))) > 0)
+                if ((line = (codeLines.FindIndex(i => i.ToUpper().Contains("INHERITS BASEPAGE")))) > 0)
                 {
-                    logger.Debug("File " + fileName + " inherits from the BasePage or already has the analytics script block, no changes were made");
+                    logger.Debug("File " + fileName + " inherits from the BasePage so no changes were made");
                     logger.Info("File: " + fileName + " | On Line number: " + line + " | Page inherits from BasePage | No changes were made");
+                    logSkipCounter++;
                     return;
                 }
             }
@@ -209,6 +212,7 @@ namespace gvAddReference
             File.WriteAllLines(fileName, allLines.ToArray());
             filesChanged = true;
             logger.Info("File changed: " + fileName + " | HTML Tag: " + scriptTag);
+            logChangeCounter++;                                                                                                                                                                                                                                                                                                     
         }
 
         private void filePathButton_Click(object sender, RoutedEventArgs e)
