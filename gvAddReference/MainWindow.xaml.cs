@@ -68,21 +68,6 @@ namespace gvAddReference
                         // Call add tag to page for each page file
                         processDirectory(pagePath, filePath, fileExtension);
 
-                        // Need to fix the tag to use a different relative url for subdir's
-                        foreach (string dir in Directory.GetDirectories(pagePath))
-                        {
-                            // Go 3 folders deep looking for files
-                            // this is dumb, change this
-                            processDirectory(dir, filePath, fileExtension);
-                            foreach (string deeperDir in Directory.GetDirectories(dir))
-                            {
-                                processDirectory(deeperDir, filePath, fileExtension);
-                                foreach (string deepestDir in Directory.GetDirectories(deeperDir))
-                                {
-                                    processDirectory(deepestDir, filePath, fileExtension);
-                                }
-                            }
-                        }
                     }
                     else
                     {
@@ -133,6 +118,15 @@ namespace gvAddReference
                 {
                     addTagToPage(filePath, fileName);
                 }
+            }
+
+            string[] directories = Directory.GetDirectories(pagePath);
+            if (directories.Count() == 0)
+                return;
+
+            foreach (string dirName in directories)
+            {
+                processDirectory(dirName, filePath, fileExtension);
             }
         }
 
@@ -222,7 +216,7 @@ namespace gvAddReference
             ofd.Multiselect = false;
  
             ofd.Filter = "Script files (*.js, *.css)|*.js*;*.css|All Files|*.*";
- 
+
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 filePathBox.Text = ofd.FileName;
@@ -237,6 +231,10 @@ namespace gvAddReference
             ofd.Multiselect = false;
             ofd.CheckFileExists = false;
             ofd.CheckPathExists = true;
+            ofd.ValidateNames = false;
+
+            // Allow both folder and file selection
+            ofd.FileName = "Folder Selection.";
 
             ofd.Filter = "Aspx + HTML Pages (*.aspx, *.html)|*.aspx*;*.htm;*.html|All Files|*.*";
  
