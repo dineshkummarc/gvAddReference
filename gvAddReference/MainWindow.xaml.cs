@@ -157,14 +157,14 @@ namespace gvAddReference
             
             // Check the page for the fileName of the reference to see if it is already in the file
             int index = allLines.FindIndex(i => i.ToUpper().Contains(System.IO.Path.GetFileName(fileName).ToUpper()));
-            /*if (index == -1)
+            if (index == -1)
             {
                 logger.Debug("Script tag already contained in " + fileName);
                 logger.Info("File: " + fileName + " | Page already contains the script tag | No changes were made");
                 logSkipCounter++;
                 return;
             }
-            */
+            
             index = allLines.FindIndex(i => i.ToUpper().Contains("</HEAD>"));
             if (index == -1)
             {
